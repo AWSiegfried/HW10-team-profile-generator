@@ -7,7 +7,7 @@ class Manager extends Employee {
     constructor(name, id, email, officeNumber, title) {
         super(name, id, email);
         this.officeNumber = officeNumber;
-        this.title = title;
+        this.title = "Manager";
     }
     getOfficeNumber() {
         return this.officeNumber
