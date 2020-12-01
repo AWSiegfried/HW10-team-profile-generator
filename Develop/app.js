@@ -1,3 +1,4 @@
+const Employee = require("./lib/Employee");
 const Manager = require("./lib/Manager");
 const Engineer = require("./lib/Engineer");
 const Intern = require("./lib/Intern");
@@ -9,6 +10,20 @@ const OUTPUT_DIR = path.resolve(__dirname, "output");
 const outputPath = path.join(OUTPUT_DIR, "team.html");
 
 const render = require("./lib/htmlRenderer");
+
+//Create total employee array
+let employeeArray = [];
+
+//Ask Manager questions
+//Push Manager to total employee array
+//Add one of three options or quit
+//Ask Engineer questions
+//Push engineer to total employee array
+//Add one of three options or quit
+//Ask Intern questions
+//Push Intern to total employee array
+//Add one of three options or quit
+//Quit = print total employee array to fs doc "team.html"
 
 
 // Write code to use inquirer to gather information about the development team members,
