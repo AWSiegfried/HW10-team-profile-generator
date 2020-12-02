@@ -17,6 +17,10 @@ The purpose of this assignment was to create a command line application that all
 
 The two main things I struggled with when tyting to complete this assignment were making the questions continue endlessly so the manager can add more than one person, and also linking the responses to the html page.  
 
+## **Screenshot**
+![screenshot](/Assets/teamprofile.png?raw=true)
+
+
 ## **Installation**
 
 1. Clone the repo
