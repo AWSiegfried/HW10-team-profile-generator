@@ -1,4 +1,3 @@
-const Employee = require("./lib/Employee");
 const Manager = require("./lib/Manager");
 const Engineer = require("./lib/Engineer");
 const Intern = require("./lib/Intern");
@@ -14,16 +13,98 @@ const render = require("./lib/htmlRenderer");
 //Create total employee array
 let employeeArray = [];
 
+//create questions
+
+const questions = [{
+        type: "input",
+        message: "Hello manager, what is your name?",
+        name: "managerName",
+        when: (data) => data.managerName === false && employeeArray.length < 1
+    },
+    {
+        type: "input",
+        message: "What is your employee ID",
+        name: "managerID",
+        when: (data) => data.managerName === true && employeeArray.length < 1
+    },
+    {
+        type: "input",
+        message: "What is your email address?",
+        name: "managerEmail",
+        when: (data) => data.managerName === true && employeeArray.length < 1
+    },
+    {
+        type: "input",
+        message: "What is your office number?",
+        name: "officeNumber",
+        when: (data) => data.managerName === true && employeeArray.length < 1
+    },
+    {
+        type: "list",
+        message: "Who would you like to add?",
+        name: "newMember",
+        choices: ["Engineer", "Intern", "None"],
+        when: (data) => data.managerName === true
+    },
+    {
+        type: "input",
+        message: "What is this employee's name?",
+        name: "employeeName",
+        when: (data) => data.managerName === true && employeeArray.length >= 1
+    },
+    {
+        type: "input",
+        message: "What is this employee's ID?",
+        name: "employeeID",
+        when: (data) => data.managerName === true && employeeArray.length >= 1
+    },
+    {
+        type: "input",
+        message: "What is this employee's email address?",
+        name: "employeeEmail",
+        when: (data) => data.managerName === true && employeeArray.length >= 1
+    },
+    {
+        type: "input",
+        message: "What is the engineer's Github username?",
+        name: "engineerGithub",
+        when: (data) => data.newMember === "Engineer" && data.managerName === true && employeeArray.length >= 1
+    },
+    {
+        type: "input",
+        message: "What school does the intern attend?",
+        name: "internSchool",
+        when: (data) => data.newMember === "Engineer" && data.managerName === true && employeeArray.length >= 1
+    }
+]
+
 //Ask Manager questions
-//Push Manager to total employee array
-//Add one of three options or quit
-//Ask Engineer questions
-//Push engineer to total employee array
-//Add one of three options or quit
-//Ask Intern questions
-//Push Intern to total employee array
-//Add one of three options or quit
-//Quit = print total employee array to fs doc "team.html"
+function createTeam() {
+    inquirer
+        .prompt(questions)
+        .then(data => {
+            //Push Manager to total employee array
+            let newManager = new Manager(data.managerName, data.managerID, data.managerEmail, data.officeNumber);
+            employeeArray.push(newManager);
+
+            if (data.newMember === "Engineer") {
+                let newEngineer = new Engineer(data.employeeName, data.employeeID, data.employeeEmail, data.engineerGithub)
+                employeeArray.push(newEngineer);
+                createTeam();
+            } else if (data.newMember === "Intern") {
+                let newIntern = new Intern(data.employeeName, data.employeeID, data.employeeEmail, data.internSchool)
+                employeeArray.push(newIntern);
+                createTeam();
+            } else {
+                //Quit = print total employee array to fs doc "team.html"
+                const teamHTML = render(employeeArray);
+                fs.appendFile(outputPath, teamHTML);
+            }
+        });
+}
+
+createTeam();
+
 
 
 // Write code to use inquirer to gather information about the development team members,
