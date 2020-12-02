@@ -12,6 +12,8 @@ const render = require("./lib/htmlRenderer");
 
 //Create total employee array
 let employeeArray = [];
+const firstWhen = (data) => !!data.managerName && employeeArray.length < 1
+const secondWhen = (data) => !!data.managerName || (employeeArray.length > 0 && data.newMember != "None");
 
 //create questions
 
@@ -19,88 +21,90 @@ const questions = [{
         type: "input",
         message: "Hello manager, what is your name?",
         name: "managerName",
-        when: (data) => data.managerName === false && employeeArray.length < 1
+        when: (data) => !data.managerName && employeeArray.length < 1
     },
     {
         type: "input",
         message: "What is your employee ID",
         name: "managerID",
-        when: (data) => data.managerName === true && employeeArray.length < 1
+        when: firstWhen
     },
     {
         type: "input",
         message: "What is your email address?",
         name: "managerEmail",
-        when: (data) => data.managerName === true && employeeArray.length < 1
+        when: firstWhen
     },
     {
         type: "input",
         message: "What is your office number?",
         name: "officeNumber",
-        when: (data) => data.managerName === true && employeeArray.length < 1
+        when: firstWhen
     },
     {
         type: "list",
         message: "Who would you like to add?",
         name: "newMember",
         choices: ["Engineer", "Intern", "None"],
-        when: (data) => data.managerName === true
+        when: (data) => !!data.managerName || employeeArray.length > 0
     },
     {
         type: "input",
         message: "What is this employee's name?",
         name: "employeeName",
-        when: (data) => data.managerName === true && employeeArray.length >= 1
+        when: secondWhen
     },
     {
         type: "input",
         message: "What is this employee's ID?",
         name: "employeeID",
-        when: (data) => data.managerName === true && employeeArray.length >= 1
+        when: secondWhen
     },
     {
         type: "input",
         message: "What is this employee's email address?",
         name: "employeeEmail",
-        when: (data) => data.managerName === true && employeeArray.length >= 1
+        when: secondWhen
     },
     {
         type: "input",
         message: "What is the engineer's Github username?",
         name: "engineerGithub",
-        when: (data) => data.newMember === "Engineer" && data.managerName === true && employeeArray.length >= 1
+        when: (data) => data.newMember === "Engineer" && secondWhen(data)
     },
     {
         type: "input",
         message: "What school does the intern attend?",
         name: "internSchool",
-        when: (data) => data.newMember === "Engineer" && data.managerName === true && employeeArray.length >= 1
+        when: (data) => data.newMember === "Intern" && secondWhen(data)
     }
 ]
 
 //Ask Manager questions
-function createTeam() {
-    inquirer
+async function createTeam() {
+    const data = await inquirer
         .prompt(questions)
-        .then(data => {
-            //Push Manager to total employee array
-            let newManager = new Manager(data.managerName, data.managerID, data.managerEmail, data.officeNumber);
-            employeeArray.push(newManager);
-
-            if (data.newMember === "Engineer") {
-                let newEngineer = new Engineer(data.employeeName, data.employeeID, data.employeeEmail, data.engineerGithub)
-                employeeArray.push(newEngineer);
-                createTeam();
-            } else if (data.newMember === "Intern") {
-                let newIntern = new Intern(data.employeeName, data.employeeID, data.employeeEmail, data.internSchool)
-                employeeArray.push(newIntern);
-                createTeam();
-            } else {
-                //Quit = print total employee array to fs doc "team.html"
-                const teamHTML = render(employeeArray);
-                fs.appendFile(outputPath, teamHTML);
-            }
+    if (data.managerName) {
+        //Push Manager to total employee array
+        let newManager = new Manager(data.managerName, data.managerID, data.managerEmail, data.officeNumber);
+        employeeArray.push(newManager);
+    }
+    if (data.newMember === "Engineer") {
+        let newEngineer = new Engineer(data.employeeName, data.employeeID, data.employeeEmail, data.engineerGithub)
+        employeeArray.push(newEngineer);
+        return createTeam();
+    } else if (data.newMember === "Intern") {
+        let newIntern = new Intern(data.employeeName, data.employeeID, data.employeeEmail, data.internSchool)
+        employeeArray.push(newIntern);
+        return createTeam();
+    } else {
+        //Quit = print total employee array to fs doc "team.html"
+        const teamHTML = render(employeeArray);
+        fs.writeFile(outputPath, teamHTML, function(error) {
+            if (error) throw error;
+            console.log("complete");
         });
+    }
 }
 
 createTeam();
